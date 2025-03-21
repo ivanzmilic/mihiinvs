@@ -24,7 +24,9 @@ NY = dims[3]
 
 print (NZ_old, NP)
 
-atmos_out = np.zeros([NT, NP, NX, NY, NZ])
+atmos_out = np.zeros([NT, NP+1, NX, NY, NZ])
+
+z = np.arange(NZ_old) * 12.0
 
 #start by making an independent variable, which is, of course, h
 tau = np.linspace(-4,1,NZ)
@@ -48,6 +50,11 @@ for t in range (0,NT):
 
 				f = interpolate.interp1d(atmos_in[t,0,i,j,::-1], atmos_in[t,p,i,j,::-1])
 				atmos_out[t,p,i,j,:] = f(tau)
+
+	for i in range(0,NX):
+		for j in range(0,NY):
+			f = interpolate.interp1d(atmos_in[t,0,i,j,::-1], z[::-1])
+			atmos_out[t,NP,i,j,:] = f(tau)
 
 atmos_out[:,2,:,:,:] = 10.**atmos_out[:,2,:,:,:]
 atmos_out[:,3,:,:,:] = 10.**atmos_out[:,3,:,:,:]
