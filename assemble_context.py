@@ -7,15 +7,16 @@ from tqdm import tqdm
 path = sys.argv[1]
 
 path = '/dat/milic/MiHi_Fe_I_plage/obs04/context/'
+path = '/dat/milic/Na_MiHi/plage/obs01/context/'
 
 start = 0 
-step = 6000
+step = 1600
 
-last = 972000
+last = 1537600
 
 for frame in tqdm(range(start, last, step)):
 
-    fullpath = path+'image.'+str(frame)+'..'+str(frame+step-1)+'.00.00.f0'
+    fullpath = path+'image.'+str(frame)+'..'+str(frame+step)+'.00.00.f0'
     #print(fullpath)
     
     img = pyana.fzread(fullpath)["data"]
@@ -38,7 +39,7 @@ from astropy.io import fits
 
 hdu = fits.PrimaryHDU(cube)
 hdul = fits.HDUList([hdu])
-hdul.writeto('context_cube.fits', overwrite=True)
+hdul.writeto('context_cube_Na.fits', overwrite=True)
 
 # print some cubes
 
