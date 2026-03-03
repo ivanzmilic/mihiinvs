@@ -8,17 +8,20 @@ from astropy.io import fits
 
 path = sys.argv[1]
 
-path = '/dat/milic/MiHi_Fe_I_plage/obs04/context/'
-path = '/dat/milic/Na_MiHi/plage/obs01/mihi_sp/lr0500/'
+#path = '/dat/milic/MiHi_Fe_I_plage/obs04/context/'
+#path = '/dat/milic/Na_MiHI/plage/obs01/mihi_sp/lr0500/'
 
 start = 0 
 step = 1600
 
 last = 1537600
+#last = start + 5*step
 #last = start + 5*2*step
 
-for frame in tqdm(range(start, last, 2*step)):
+for frame in tqdm(range(start, last, step)):
 
+    # For Carlos, we want average of the two cubes.
+    '''
     fullpath = path+'img_fit.'+str(frame)+'..'+str(frame+step)+'.00.00.lr0500.cube.fits'
     stokes1 = fits.open(fullpath)[0].data[10:-10,10:-10,:,300:460]
     ll1 = fits.open(fullpath)[1].data[300:460]
@@ -30,6 +33,14 @@ for frame in tqdm(range(start, last, 2*step)):
 
     stokes = stokes.reshape(1, stokes.shape[0], stokes.shape[1], stokes.shape[2],-1)
     ll = ll.reshape(1, ll.shape[0])
+    '''
+
+    # But for Cori, we want full resolution cubes, and we will only do Stokes I and V, also clean up wavelengths a bit.
+    fullpath = path+'img_fit.'+str(frame)+'..'+str(frame+step)+'.00.00.lr0500.cube.fits'
+    stokes = fits.open(fullpath)[0].data[12:-12,12:-12,[0,3],35:475]
+    ll = fits.open(fullpath)[1].data[0:500]
+    stokes = stokes.reshape(1, stokes.shape[0], stokes.shape[1], stokes.shape[2],-1)
+    
     
     if frame == start:
         cube = stokes
@@ -38,7 +49,7 @@ for frame in tqdm(range(start, last, 2*step)):
     # but these are now 4D cubes, so we need to stack along a new axis
     else :
         cube = np.concatenate((cube, stokes), axis=0)
-        llseries = np.concatenate((llseries, ll), axis=0)
+        #llseries = np.concatenate((llseries, ll), axis=0)
 
 print(cube.shape)
 print(llseries.shape)
@@ -46,4 +57,4 @@ print(llseries.shape)
 hdu = fits.PrimaryHDU(cube)
 hdu1 = fits.ImageHDU(llseries)
 hdul = fits.HDUList([hdu, hdu1])
-hdul.writeto(path+'cubeseries_Na.fits', overwrite=True)
+hdul.writeto(path+'cubeseries_Na_cori.fits', overwrite=True)
